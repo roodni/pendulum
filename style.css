@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+#screen {
+	border-style: dotted;
+	border-color: #000000;
+	border-width: 1px;	
+}
+
+/*#screen:hover {
+	cursor: none;
+}*/
+
+/*body {
+	background-color: #e0e0e0;
+}*/
