@@ -62,5 +62,5 @@ function SLEsolve(matrix) {
     for (let i = 0; i < rows; i++) {
         ans[i] = vecs[i].elm[rows];
     }
-    return new Vector(ans);
+    return ans;
 }
