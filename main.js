@@ -5,10 +5,19 @@ const canvas = new Canvas();
 const mouse = new MouseInput();
 const pendulum = new Pendulum();
 
+let images = [];
+
 function init() {
+    images[0] = new Image();
+    images[0].src = "src/MSM3.jpg";
+    images[1] = new Image();
+    images[1].src = "src/UED.jpg";
+    images[2] = new Image();
+    images[2].src = "src/kuso.jpg";
+
     canvas.init(document.getElementById("screen"), W, H);
     mouse.init(canvas.canvas);
-    pendulum.init();
+    pendulum.init(images);
 }
 
 function update() {

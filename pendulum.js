@@ -1,10 +1,11 @@
-
-
 class Pendulum {
     init(images) {
-        this.num = 2;
+        this.revolution = true;
+        this.images = images;
+
+        this.num = 3;
         this.mass = new Array(this.num).fill(10);
-        let l = 150;
+        let l = 200;
         this.len = new Array(this.num).fill(l);
         this.lenG = new Array(this.num).fill(l);
         this.rG = new Array(this.num).fill(0);
@@ -14,16 +15,15 @@ class Pendulum {
             this.I[i] = 0;//this.mass[i] * Math.pow(this.len[i], 2) / 12;
         }
 
-        let r = new Array(this.num).fill(Math.PI / 2);
+        let r = new Array(this.num).fill(Math.PI / 180 * 45);
         let v = new Array(this.num).fill(0);
         this.vec = new Vector(r.concat(v));
 
-        this.loop = 256;
-        this.dt = 1 / this.loop;
+        this.loop = 100;
         this.gx = 0;
         this.gy = 0.5;
         this.ox = 512;
-        this.oy = 256;
+        this.oy = 128;
 
         //質量の累積和をとる
         this._massSum = [0];
@@ -71,9 +71,10 @@ class Pendulum {
         return new Vector(vec.elm.slice(this.num, this.num * 2).concat(SLEsolve(matrix)));
     }
     update() {
+        let dt = 1 / this.loop;
         for (let i = 0; i < this.loop; i++) {
-            let tmp1 = this.bibun(this.vec).mult(this.dt);
-            let tmp2 = this.bibun(this.vec.add(tmp1)).mult(this.dt);
+            let tmp1 = this.bibun(this.vec).mult(dt);
+            let tmp2 = this.bibun(this.vec.add(tmp1)).mult(dt);
             this.vec = this.vec.add(tmp1.add(tmp2).mult(1 / 2));
         }
     }
@@ -84,21 +85,38 @@ class Pendulum {
             let dx = this.len[i] * Math.sin(this.vec.elm[i]);
             let dy = this.len[i] * Math.cos(this.vec.elm[i]);
 
-            ctx.strokeStyle = "#000000";
-            ctx.lineWidth = 10;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + dx, y + dy);
-            ctx.stroke();
+            if (!this.revolution) {
+                ctx.strokeStyle = "#000000";
+                ctx.lineWidth = 10;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + dx, y + dy);
+                ctx.stroke();
+
+                ctx.fillStyle = "#000000";
+                ctx.beginPath();
+                ctx.arc(x + dx, y + dy, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else {
+                ctx.save();
+                ctx.translate(x + dx, y + dy);
+                ctx.rotate(-this.vec.elm[i]);
+                let scale = this.len[i] / images[i].height;
+                ctx.scale(scale, scale);
+                ctx.drawImage(images[i], -images[i].width / 2, -images[i].height);
+                ctx.restore();
+
+                ctx.fillStyle = "#000000";
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
             x += dx;
             y += dy;
-
-            ctx.fillStyle = "#000000";
-            ctx.beginPath();
-            ctx.arc(x, y, 20, 0, Math.PI * 2);
-            ctx.fill();
         }
+
 
         ctx.fillStyle = "#000000";
         ctx.font = "30px serif";
