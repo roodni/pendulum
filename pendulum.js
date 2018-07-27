@@ -1,11 +1,11 @@
 class Pendulum {
     init(images) {
-        this.revolution = 1;
+        this.revolution = 0;
         this.images = images;
 
-        this.num = 3;
+        this.num = 5;
         this.mass = new Array(this.num).fill(10);
-        let l = 180;
+        let l = 100;
         this.len = new Array(this.num).fill(l);
         this.lenG = new Array(this.num).fill(l);
         this.rG = new Array(this.num).fill(Math.PI / 180 * 0);
@@ -15,7 +15,7 @@ class Pendulum {
             this.I[i] = 0;//this.mass[i] * Math.pow(this.len[i], 2) / 12;
         }
 
-        let r = new Array(this.num).fill(Math.PI / 180 * 70);
+        let r = new Array(this.num).fill(Math.PI / 180 * 90);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
