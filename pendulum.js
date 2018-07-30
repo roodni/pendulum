@@ -3,9 +3,9 @@ class Pendulum {
         this.revolution = 0;
         this.images = images;
 
-        this.num = 4;
+        this.num = 5;
         this.mass = new Array(this.num).fill(10);
-        let l = 150;
+        let l = 120;
         this.len = new Array(this.num ).fill(l);
         this.lenG = new Array(this.num).fill(l / 2);
         this.rG = new Array(this.num).fill(Math.PI / 180 * 0);
