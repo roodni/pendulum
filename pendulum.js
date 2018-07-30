@@ -3,19 +3,19 @@ class Pendulum {
         this.revolution = 0;
         this.images = images;
 
-        this.num = 5;
+        this.num = 4;
         this.mass = new Array(this.num).fill(10);
-        let l = 100;
-        this.len = new Array(this.num).fill(l);
-        this.lenG = new Array(this.num).fill(l);
+        let l = 150;
+        this.len = new Array(this.num ).fill(l);
+        this.lenG = new Array(this.num).fill(l / 2);
         this.rG = new Array(this.num).fill(Math.PI / 180 * 0);
 
         this.I = [];
         for (let i = 0; i < this.num; i++) {
-            this.I[i] = 0;//this.mass[i] * Math.pow(this.len[i], 2) / 12;
+            this.I[i] = this.mass[i] * Math.pow(this.lenG[i] * 2, 2) / 12;
         }
 
-        let r = new Array(this.num).fill(Math.PI / 180 * 90);
+        let r = new Array(this.num).fill(Math.PI / 180 * 60);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
@@ -23,7 +23,7 @@ class Pendulum {
         this.gx = 0;
         this.gy = 0.5;
         this.ox = W / 2;
-        this.oy = 64;
+        this.oy = H / 8;
 
         //質量の累積和をとる
         this._massSum = [0];
@@ -125,43 +125,109 @@ class Pendulum {
         let x = this.ox;
         let y = this.oy;
         for (let i = 0; i < this.num; i++) {
-            let dx = this.len[i] * Math.sin(this.vec.elm[i] + this.rG[i]);
-            let dy = this.len[i] * Math.cos(this.vec.elm[i] + this.rG[i]);
+            let dx, dy, dgx, dgy;
+            dgx = this.lenG[i] * Math.sin(this.vec.elm[i]);
+            dgy = this.lenG[i] * Math.cos(this.vec.elm[i]);
+            if (i < this.num - 1) {
+                dx = this.len[i] * Math.sin(this.vec.elm[i] + this.rG[i]);
+                dy = this.len[i] * Math.cos(this.vec.elm[i] + this.rG[i]);
+            }
 
             if (!this.revolution) {
-                ctx.strokeStyle = "#000000";
-                ctx.lineWidth = 20;
+                //一般表示モード
+                let edgeW = 8;
+
+                ctx.strokeStyle = "rgb(0, 0, 0)";
+                ctx.lineWidth = edgeW;
+
                 ctx.beginPath();
                 ctx.moveTo(x, y);
-                ctx.lineTo(x + dx, y + dy);
+                ctx.lineTo(x + dgx, y + dgy);
                 ctx.stroke();
 
-                ctx.fillStyle = "#000000";
+                if (i < this.num - 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + dx, y + dy);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(x + dx, y + dy);
+                    ctx.lineTo(x + dgx, y + dgy);
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = "rgb(0, 0, 0)";
                 ctx.beginPath();
-                ctx.arc(x + this.lenG[i] * Math.sin(this.vec.elm[i]), y + this.lenG[i] * Math.cos(this.vec.elm[i]), 20, 0, Math.PI * 2);
+                ctx.arc(x, y, edgeW * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+
+                let gColor = "hsl("+ (360 / this.num * i) + ", 100%, 50%)"
+
+                ctx.fillStyle = gColor;
+                ctx.globalAlpha = 0.5;
+                let r = Math.max(edgeW * 2, Math.sqrt(this.I[i] * 2 / this.mass[i]));
+                ctx.beginPath();
+                ctx.arc(x + dgx, y + dgy, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = "rgb(0, 0, 0)";
+                ctx.beginPath();
+                ctx.arc(x + dgx, y + dgy, edgeW, 0, Math.PI * 2);
                 ctx.fill();
 
             } else {
+                //教育改革モード
+                ctx.strokeStyle = "rgb(0, 0, 0)";
+                ctx.fillStyle = "rgb(0, 0, 0)";
+
+                let dgx2 = dgx * this.len[i] / this.lenG[i];
+                let dgy2 = dgy * this.len[i] / this.lenG[i];
+
+                if (i < this.num - 1) {
+                    ctx.lineWidth = 10;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + dx, y + dy);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(x + dgx2, y + dgy2);
+                    ctx.lineTo(x + dx, y + dy);
+                    ctx.stroke();
+
+                }
+
                 ctx.save();
-                ctx.translate(x + dx, y + dy);
+                ctx.translate(x + dgx, y + dgy);
                 ctx.rotate(-this.vec.elm[i]);
-                let scale = this.len[i] / images[i].height;
+                let scale = this.lenG[i] / images[i].height * 2;
                 ctx.scale(scale, scale);
-                ctx.drawImage(images[i], -images[i].width / 2, -images[i].height);
+                ctx.drawImage(images[i], -images[i].width / 2, -images[i].height / 2);
                 ctx.restore();
 
-                ctx.fillStyle = "#000000";
+                
                 ctx.beginPath();
                 ctx.arc(x, y, 8, 0, Math.PI * 2);
                 ctx.fill();
+
+                if (i < this.num - 1) {
+                    ctx.beginPath();
+                    ctx.arc(x + dgx2, y + dgy2, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
             }
 
-            x += dx;
-            y += dy;
+            if (i < this.num - 1) {
+                x += dx;
+                y += dy;
+            }
         }
 
 
-        ctx.fillStyle = "#000000";
+        ctx.fillStyle = "rgb(0, 0, 0)";
         ctx.font = "30px serif";
         ctx.textBaseline = "top";
         ctx.textAlign = "right";
