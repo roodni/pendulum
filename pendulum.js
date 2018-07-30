@@ -3,19 +3,19 @@ class Pendulum {
         this.revolution = 0;
         this.images = images;
 
-        this.num = 5;
+        this.num = 4;
         this.mass = new Array(this.num).fill(10);
         let l = 120;
-        this.len = new Array(this.num ).fill(l);
+        this.len = new Array(this.num - 1).fill(l);
         this.lenG = new Array(this.num).fill(l / 2);
-        this.rG = new Array(this.num).fill(Math.PI / 180 * 0);
+        this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
 
         this.I = [];
         for (let i = 0; i < this.num; i++) {
             this.I[i] = this.mass[i] * Math.pow(this.lenG[i] * 2, 2) / 12;
         }
 
-        let r = new Array(this.num).fill(Math.PI / 180 * 60);
+        let r = new Array(this.num).fill(Math.PI / 180 * 90);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
@@ -79,31 +79,36 @@ class Pendulum {
             //係数
             for (let p = 0; p < h; p++) {
                 matrix[h][p] = this.mass[h] * this.lenG[h] * this.len[p] * Math.cos(vec.elm[p] + this.rG[p] - vec.elm[h])
-                    + this.massSum(h + 1, this.num - 1) * this.len[h] * this.len[p] * Math.cos(vec.elm[p] - vec.elm[h] + this.rG[p] - this.rG[h]);
+                    + ((h === this.num - 1) ? 0 : this.massSum(h + 1, this.num - 1) * this.len[h] * this.len[p] * Math.cos(vec.elm[p] - vec.elm[h] + this.rG[p] - this.rG[h]));
             }
-            matrix[h][h] = this.mass[h] * Math.pow(this.lenG[h], 2) + this.I[h] + this.massSum(h + 1, this.num - 1) * Math.pow(this.len[h], 2);
+            matrix[h][h] = this.mass[h] * Math.pow(this.lenG[h], 2) + this.I[h]
+                + ((h === this.num - 1) ? 0 : this.massSum(h + 1, this.num - 1) * Math.pow(this.len[h], 2));
             for (let p = h + 1; p < this.num; p++) {
                 matrix[h][p] = this.mass[p] * this.len[h] * this.lenG[p] * Math.cos(vec.elm[h] + this.rG[h] - vec.elm[p])
-                    + this.massSum(p + 1, this.num - 1) * this.len[h] * this.len[p] * Math.cos(vec.elm[p] - vec.elm[h] + this.rG[p] - this.rG[h]);
+                    + ((p === this.num - 1) ? 0 : this.massSum(p + 1, this.num - 1) * this.len[h] * this.len[p] * Math.cos(vec.elm[p] - vec.elm[h] + this.rG[p] - this.rG[h]));
             }
+
             //定数項
             let sum1 = 0;
             for (let i = 0; i < h; i++) {
                 sum1 += this.len[i] * Math.pow(vec.elm[this.num + i], 2) * Math.sin(vec.elm[i] + this.rG[i] - vec.elm[h]);
             }
             let sum2 = [0];
-            for (let i = 0; i < this.num; i++) {
-                sum2[i + 1] = sum2[i] + this.len[i] * Math.pow(vec.elm[this.num + i], 2) * Math.sin(vec.elm[i] - vec.elm[h] + this.rG[i] - this.rG[h]);
+            if (h < this.num - 1) {
+                for (let i = 0; i < this.num; i++) {
+                    sum2[i + 1] = sum2[i] + this.len[i] * Math.pow(vec.elm[this.num + i], 2) * Math.sin(vec.elm[i] - vec.elm[h] + this.rG[i] - this.rG[h]);
+                }
             }
             let sum3 = 0;
             for (let k = h + 1; k < this.num; k++) {
-                sum3 += this.mass[k] * (-this.lenG[k] * Math.pow(vec.elm[this.num + k], 2) * Math.sin(vec.elm[h] + this.rG[h] - vec.elm[k])
-                    + sum2[k] - sum2[0])
+                sum3 += this.mass[k] * this.len[h] * (-this.lenG[k] * Math.pow(vec.elm[this.num + k], 2) * Math.sin(vec.elm[h] + this.rG[h] - vec.elm[k])
+                    + sum2[k] - sum2[0]);
             }
             matrix[h][this.num] = this.mass[h] * this.lenG[h] * sum1
-                + this.len[h] * sum3
+                + sum3
                 + this.mass[h] * this.lenG[h] * (this.gx * Math.cos(vec.elm[h]) - this.gy * Math.sin(vec.elm[h]))
-                + this.massSum(h + 1, this.num - 1) * this.len[h] * (this.gx * Math.cos(vec.elm[h] + this.rG[h]) - this.gy * Math.sin(vec.elm[h] + this.rG[h]));
+                + ((h === this.num - 1) ? 0 : this.massSum(h + 1, this.num - 1) * this.len[h] * (this.gx * Math.cos(vec.elm[h] + this.rG[h]) - this.gy * Math.sin(vec.elm[h] + this.rG[h])));
+
         }
 
         return new Vector(vec.elm.slice(this.num, this.num * 2).concat(SLEsolve(matrix)));
@@ -115,9 +120,16 @@ class Pendulum {
             //this.vec = this.vec.add(this.bibun(this.vec).mult(dt));
 
             //修正オイラー法
-            let tmp1 = this.bibun(this.vec).mult(dt);
+            /*let tmp1 = this.bibun(this.vec).mult(dt);
             let tmp2 = this.bibun(this.vec.add(tmp1)).mult(dt);
-            this.vec = this.vec.add(tmp1.add(tmp2).mult(1 / 2));
+            this.vec = this.vec.add(tmp1.add(tmp2).mult(1 / 2));*/
+
+            //ルンゲクッタ法
+            let tmp1 = this.bibun(this.vec);
+            let tmp2 = this.bibun(this.vec.add(tmp1.mult(dt / 2)));
+            let tmp3 = this.bibun(this.vec.add(tmp2.mult(dt / 2)));
+            let tmp4 = this.bibun(this.vec.add(tmp3.mult(dt)));
+            this.vec = this.vec.add((tmp1.add(tmp2.mult(2)).add(tmp3.mult(2)).add(tmp4)).mult(dt / 6));
         }
     }
     
@@ -166,7 +178,7 @@ class Pendulum {
 
                 ctx.fillStyle = gColor;
                 ctx.globalAlpha = 0.5;
-                let r = Math.max(edgeW * 2, Math.sqrt(this.I[i] * 2 / this.mass[i]));
+                let r = Math.max(edgeW * 3, Math.sqrt(this.I[i] * 2 / this.mass[i]));
                 ctx.beginPath();
                 ctx.arc(x + dgx, y + dgy, r, 0, Math.PI * 2);
                 ctx.fill();
@@ -232,6 +244,6 @@ class Pendulum {
         ctx.textBaseline = "top";
         ctx.textAlign = "right";
         //ctx.fillText("絶起！w", 0, 0);
-        ctx.fillText((this.getE() - this.firstE).toFixed(5), W, 0);
+        ctx.fillText((this.getE() - this.firstE).toFixed(8), W, 0);
     }
 }
