@@ -3,17 +3,17 @@ class Pendulum {
         this.revolution = 0;
         this.images = images;
 
-        this.num = 4;
+        this.num = 3;
         this.mass = new Array(this.num).fill(10);
-        let l = 120;
+        let l = 150;
         this.len = new Array(this.num - 1).fill(l);
         this.lenG = new Array(this.num).fill(l / 2);
         this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
-
         this.I = [];
         for (let i = 0; i < this.num; i++) {
             this.I[i] = this.mass[i] * Math.pow(this.lenG[i] * 2, 2) / 12;
         }
+        this.decay = new Array(this.num).fill(100);
 
         let r = new Array(this.num).fill(Math.PI / 180 * 90);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
@@ -107,7 +107,8 @@ class Pendulum {
             matrix[h][this.num] = this.mass[h] * this.lenG[h] * sum1
                 + sum3
                 + this.mass[h] * this.lenG[h] * (this.gx * Math.cos(vec.elm[h]) - this.gy * Math.sin(vec.elm[h]))
-                + ((h === this.num - 1) ? 0 : this.massSum(h + 1, this.num - 1) * this.len[h] * (this.gx * Math.cos(vec.elm[h] + this.rG[h]) - this.gy * Math.sin(vec.elm[h] + this.rG[h])));
+                + ((h === this.num - 1) ? 0 : this.massSum(h + 1, this.num - 1) * this.len[h] * (this.gx * Math.cos(vec.elm[h] + this.rG[h]) - this.gy * Math.sin(vec.elm[h] + this.rG[h])))
+                - this.decay[h] * vec.elm[this.num + h];
 
         }
 
@@ -242,8 +243,9 @@ class Pendulum {
         ctx.fillStyle = "rgb(0, 0, 0)";
         ctx.font = "30px serif";
         ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+        ctx.fillText("絶起！w", 0, 0);
         ctx.textAlign = "right";
-        //ctx.fillText("絶起！w", 0, 0);
         ctx.fillText((this.getE() - this.firstE).toFixed(8), W, 0);
     }
 }
