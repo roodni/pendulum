@@ -3,27 +3,31 @@ class Pendulum {
         this.revolution = 0;
         this.images = images;
 
-        this.num = 3;
+        this.num = 5;
         this.mass = new Array(this.num).fill(10);
-        let l = 150;
+        let l = 0.3;
         this.len = new Array(this.num - 1).fill(l);
-        this.lenG = new Array(this.num).fill(l / 2);
+        this.lenG = new Array(this.num).fill(l);
         this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
         this.I = [];
         for (let i = 0; i < this.num; i++) {
-            this.I[i] = this.mass[i] * Math.pow(this.lenG[i] * 2, 2) / 12;
+            this.I[i] = 0;//(1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
         }
-        this.decay = new Array(this.num).fill(100);
+        this.decay = new Array(this.num).fill(0.5);
 
         let r = new Array(this.num).fill(Math.PI / 180 * 90);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
-        this.loop = 100;
         this.gx = 0;
-        this.gy = 0.5;
+        this.gy = 9.8;
+
+        this.px_m = 200;
         this.ox = W / 2;
         this.oy = H / 8;
+
+        this.loop = 100;
+        this.passedTime = 0;
 
         //質量の累積和をとる
         this._massSum = [0];
@@ -115,7 +119,7 @@ class Pendulum {
         return new Vector(vec.elm.slice(this.num, this.num * 2).concat(SLEsolve(matrix)));
     }
     update() {
-        let dt = 1 / this.loop;
+        let dt = 1 / (60 * this.loop);
         for (let i = 0; i < this.loop; i++) {
             //オイラー法
             //this.vec = this.vec.add(this.bibun(this.vec).mult(dt));
@@ -132,6 +136,7 @@ class Pendulum {
             let tmp4 = this.bibun(this.vec.add(tmp3.mult(dt)));
             this.vec = this.vec.add((tmp1.add(tmp2.mult(2)).add(tmp3.mult(2)).add(tmp4)).mult(dt / 6));
         }
+        this.passedTime += 1 / 60;
     }
     
     draw(ctx) {
@@ -139,11 +144,11 @@ class Pendulum {
         let y = this.oy;
         for (let i = 0; i < this.num; i++) {
             let dx, dy, dgx, dgy;
-            dgx = this.lenG[i] * Math.sin(this.vec.elm[i]);
-            dgy = this.lenG[i] * Math.cos(this.vec.elm[i]);
+            dgx = this.lenG[i] * Math.sin(this.vec.elm[i]) * this.px_m;
+            dgy = this.lenG[i] * Math.cos(this.vec.elm[i]) * this.px_m;
             if (i < this.num - 1) {
-                dx = this.len[i] * Math.sin(this.vec.elm[i] + this.rG[i]);
-                dy = this.len[i] * Math.cos(this.vec.elm[i] + this.rG[i]);
+                dx = this.len[i] * Math.sin(this.vec.elm[i] + this.rG[i]) * this.px_m;
+                dy = this.len[i] * Math.cos(this.vec.elm[i] + this.rG[i]) * this.px_m;
             }
 
             if (!this.revolution) {
@@ -179,7 +184,7 @@ class Pendulum {
 
                 ctx.fillStyle = gColor;
                 ctx.globalAlpha = 0.5;
-                let r = Math.max(edgeW * 3, Math.sqrt(this.I[i] * 2 / this.mass[i]));
+                let r = Math.max(edgeW * 3, Math.sqrt(this.I[i] * Math.pow(this.px_m, 2) * 2 / this.mass[i]));
                 ctx.beginPath();
                 ctx.arc(x + dgx, y + dgy, r, 0, Math.PI * 2);
                 ctx.fill();
@@ -215,7 +220,7 @@ class Pendulum {
                 ctx.save();
                 ctx.translate(x + dgx, y + dgy);
                 ctx.rotate(-this.vec.elm[i]);
-                let scale = this.lenG[i] / images[i].height * 2;
+                let scale = this.lenG[i] * this.px_m / images[i].height * 2;
                 ctx.scale(scale, scale);
                 ctx.drawImage(images[i], -images[i].width / 2, -images[i].height / 2);
                 ctx.restore();
@@ -244,8 +249,8 @@ class Pendulum {
         ctx.font = "30px serif";
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
-        ctx.fillText("絶起！w", 0, 0);
+        ctx.fillText(this.passedTime.toFixed(1) + ' s', 0, 0);
         ctx.textAlign = "right";
-        ctx.fillText((this.getE() - this.firstE).toFixed(8), W, 0);
+        ctx.fillText((this.getE() - this.firstE).toFixed(8) + ' J', W, 0);
     }
 }
