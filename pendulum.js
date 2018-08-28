@@ -3,7 +3,7 @@ class Pendulum {
         this.revolution = 0;
         this.images = images;
 
-        this.num = 5;
+        this.num = 8;
         this.mass = new Array(this.num).fill(10);
         let l = 0.3;
         this.len = new Array(this.num - 1).fill(l);
@@ -11,20 +11,20 @@ class Pendulum {
         this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
         this.I = [];
         for (let i = 0; i < this.num; i++) {
-            this.I[i] = 0;//(1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
+            this.I[i] = 0;(1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
         }
-        this.decay = new Array(this.num).fill(0.5);
+        this.decay = new Array(this.num).fill(0);
 
-        let r = new Array(this.num).fill(Math.PI / 180 * 90);
+        let r = new Array(this.num).fill(Math.PI / 180 * 60);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
         this.gx = 0;
         this.gy = 9.8;
 
-        this.px_m = 200;
-        this.ox = W / 2;
-        this.oy = H / 8;
+        this.px_m = 150;
+        this.ox = screenW / 2;
+        this.oy = screenH / 8;
 
         this.loop = 100;
         this.passedTime = 0;
@@ -251,6 +251,13 @@ class Pendulum {
         ctx.textAlign = "left";
         ctx.fillText(this.passedTime.toFixed(1) + ' s', 0, 0);
         ctx.textAlign = "right";
-        ctx.fillText((this.getE() - this.firstE).toFixed(8) + ' J', W, 0);
+        ctx.fillText((this.getE() - this.firstE).toFixed(8) + ' J', screenW, 0);
+
+        //ctx.fillStyle = "rgb(255, 0, 0)";
+        ctx.font = "20px serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText("1m", 0, screenH);
+        ctx.fillRect(0, screenH - 20 - this.px_m, 5, this.px_m);
     }
 }
