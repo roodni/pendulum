@@ -8,12 +8,12 @@ const pendulum = new Pendulum();
 let images = [];
 
 function init() {
-    images[0] = new Image();
+    /*images[0] = new Image();
     images[0].src = "src/UEDpink.jpg";
     images[1] = new Image();
     images[1].src = "src/UED.jpg";
     images[2] = new Image();
-    images[2].src = "src/UED_IKGM.jpg";
+    images[2].src = "src/UED_IKGM.jpg";*/
 
     canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);
@@ -23,6 +23,12 @@ function init() {
 function update() {
     mouse.update();
 
+    //平行移動
+    if (mouse.downOld) {
+        pendulum.ox += mouse.x - mouse.xOld;
+        pendulum.oy += mouse.y - mouse.yOld;
+    }
+    //拡大縮小
     if (Math.abs(mouse.wheel) > 0) {
         let r = Math.pow(1.01, mouse.wheel / 120)
         pendulum.px_m *= r;

@@ -1,28 +1,50 @@
 class MouseInput {
     init(elm) {
         this.elm = elm;
-        this.__active = false;
-        this.__x = 0;
-        this.__y = 0;
-        this.__wheel = 0;
+        this.active = false;
+        this._active = false;
+        this.x = 0;
+        this.y = 0;
+        this._x = 0;
+        this._y = 0;
+        this.wheel = 0;
+        this._wheel = 0;
+        this.down = false;
+        this._down = false;
+
         elm.addEventListener("mousemove", (e) => {
-            this.__active = true;
-            this.__x = e.offsetX;
-            this.__y = e.offsetY;
+            this._active = true;
+            this._x = e.offsetX;
+            this._y = e.offsetY;
         });
         elm.addEventListener("mouseout", () => {
-            this.__active = false;
+            this._active = false;
+            this._down = false;
         });
         elm.addEventListener("mousewheel", (e) => {
             e.preventDefault();
-            this.__wheel = e.wheelDelta;
+            this._wheel = e.wheelDelta;
+        });
+        elm.addEventListener("mousedown", () => {
+            this._down = true;
+        });
+        elm.addEventListener("mouseup", () => {
+            this._down = false;
         });
     }
     update() {
-        this.active = this.__active;
-        this.x = this.__x;
-        this.y = this.__y;
-        this.wheel = this.__wheel;
-        this.__wheel = 0;
+        this.activeOld = this.active;
+        this.active = this._active;
+
+        this.xOld = this.x;
+        this.yOld = this.y;
+        this.x = this._x;
+        this.y = this._y;
+
+        this.wheel = this._wheel;
+        this._wheel = 0;
+
+        this.downOld = this.down;
+        this.down = this._down;
     }
 }
