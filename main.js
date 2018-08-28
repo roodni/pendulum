@@ -1,5 +1,5 @@
-const screenW = 640;
-const screenH = 480;
+const screenW = 768;
+const screenH = 512;
 
 const canvas = new Canvas();
 const mouse = new MouseInput();
@@ -11,9 +11,9 @@ function init() {
     /*images[0] = new Image();
     images[0].src = "src/UEDpink.jpg";
     images[1] = new Image();
-    images[1].src = "src/UED.jpg";
+    images[1].src = "src/MSM.jpg";
     images[2] = new Image();
-    images[2].src = "src/UED_IKGM.jpg";*/
+    images[2].src = "src/kuso.jpg";*/
 
     canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);

@@ -1,21 +1,26 @@
 class Pendulum {
     init(images) {
-        this.revolution = 0;
+        //描画方法
+        //0: 一般カラフル描画
+        //1: 画像を貼る
+        //2: 棒(未完成)
+        this.drawMode = 0;
+
         this.images = images;
 
-        this.num = 8;
+        this.num = 5;
         this.mass = new Array(this.num).fill(10);
         let l = 0.3;
         this.len = new Array(this.num - 1).fill(l);
-        this.lenG = new Array(this.num).fill(l);
+        this.lenG = new Array(this.num).fill(l / 2);
         this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
         this.I = [];
         for (let i = 0; i < this.num; i++) {
-            this.I[i] = 0;(1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
+            this.I[i] = (1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
         }
-        this.decay = new Array(this.num).fill(0);
+        this.decay = new Array(this.num).fill(0.1);
 
-        let r = new Array(this.num).fill(Math.PI / 180 * 60);
+        let r = new Array(this.num).fill(Math.PI / 180 * 90);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
@@ -142,6 +147,7 @@ class Pendulum {
     draw(ctx) {
         let x = this.ox;
         let y = this.oy;
+        let l_lg_sum = 0; //len[i] / lenG[i]の合計
         for (let i = 0; i < this.num; i++) {
             let dx, dy, dgx, dgy;
             dgx = this.lenG[i] * Math.sin(this.vec.elm[i]) * this.px_m;
@@ -149,9 +155,10 @@ class Pendulum {
             if (i < this.num - 1) {
                 dx = this.len[i] * Math.sin(this.vec.elm[i] + this.rG[i]) * this.px_m;
                 dy = this.len[i] * Math.cos(this.vec.elm[i] + this.rG[i]) * this.px_m;
+                l_lg_sum += this.len[i] / this.lenG[i];
             }
 
-            if (!this.revolution) {
+            if (this.drawMode == 0) {
                 //一般表示モード
                 let edgeW = 8;
 
@@ -195,15 +202,19 @@ class Pendulum {
                 ctx.arc(x + dgx, y + dgy, edgeW, 0, Math.PI * 2);
                 ctx.fill();
 
-            } else {
-                //教育改革モード
+            } else if (this.drawMode == 1) {
+                //写真表示モード
                 ctx.strokeStyle = "rgb(0, 0, 0)";
                 ctx.fillStyle = "rgb(0, 0, 0)";
 
-                let dgx2 = dgx * this.len[i] / this.lenG[i];
-                let dgy2 = dgy * this.len[i] / this.lenG[i];
+                let len;
+                let dgx2, dgy2;
 
                 if (i < this.num - 1) {
+                    len = this.len[i];
+                    dgx2 = dgx * len / this.lenG[i];
+                    dgy2 = dgy * len / this.lenG[i];
+                    
                     ctx.lineWidth = 10;
                     ctx.beginPath();
                     ctx.moveTo(x, y);
@@ -214,18 +225,21 @@ class Pendulum {
                     ctx.moveTo(x + dgx2, y + dgy2);
                     ctx.lineTo(x + dx, y + dy);
                     ctx.stroke();
-
+                } else {
+                    len = this.lenG[i] * l_lg_sum / this.num;
+                    dx = dgx * 2;
+                    dy = dgy * 2;
                 }
 
                 ctx.save();
-                ctx.translate(x + dgx, y + dgy);
+                ctx.translate(x, y);
                 ctx.rotate(-this.vec.elm[i]);
-                let scale = this.lenG[i] * this.px_m / images[i].height * 2;
+                let img = images[i % images.length];
+                let scale = len * this.px_m / img.height;
                 ctx.scale(scale, scale);
-                ctx.drawImage(images[i], -images[i].width / 2, -images[i].height / 2);
+                ctx.drawImage(img, -img.width / 2, 0);
                 ctx.restore();
 
-                
                 ctx.beginPath();
                 ctx.arc(x, y, 8, 0, Math.PI * 2);
                 ctx.fill();
@@ -236,6 +250,17 @@ class Pendulum {
                     ctx.fill();
                 }
 
+            } else if (this.drawMode == 2) {
+                //棒表示モード
+                let edgeW = 10;
+
+                ctx.strokeStyle = "rgb(0, 0, 0)";
+                ctx.lineWidth = edgeW;
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + dgx * 2, y + dgy * 2);
+                ctx.stroke();
             }
 
             if (i < this.num - 1) {
@@ -244,7 +269,7 @@ class Pendulum {
             }
         }
 
-
+        //経過時間、力学的エネルギー
         ctx.fillStyle = "rgb(0, 0, 0)";
         ctx.font = "30px serif";
         ctx.textBaseline = "top";
@@ -253,6 +278,7 @@ class Pendulum {
         ctx.textAlign = "right";
         ctx.fillText((this.getE() - this.firstE).toFixed(8) + ' J', screenW, 0);
 
+        //縮尺
         //ctx.fillStyle = "rgb(255, 0, 0)";
         ctx.font = "20px serif";
         ctx.textAlign = "left";
