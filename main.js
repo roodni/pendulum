@@ -8,12 +8,12 @@ const pendulum = new Pendulum();
 let images = [];
 
 function init() {
-    /*images[0] = new Image();
-    images[0].src = "src/UEDpink.jpg";
+    images[0] = new Image();
+    images[0].src = "src/bluebird_baka.png";//"src/uchiwa/UEDpink.jpg";
     images[1] = new Image();
-    images[1].src = "src/MSM.jpg";
-    images[2] = new Image();
-    images[2].src = "src/kuso.jpg";*/
+    images[1].src = "src/yaruki_moetsuki_man.png";//"src/uchiwa/MSM.jpg";
+    //images[2] = new Image();
+    //images[2].src = "src/uchiwa/kuso.jpg";
 
     canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);

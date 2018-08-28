@@ -4,13 +4,13 @@ class Pendulum {
         //0: 一般カラフル描画
         //1: 画像を貼る
         //2: 棒(未完成)
-        this.drawMode = 0;
+        this.drawMode = 1;
 
         this.images = images;
 
-        this.num = 5;
+        this.num = 3;
         this.mass = new Array(this.num).fill(10);
-        let l = 0.3;
+        let l = 0.5;
         this.len = new Array(this.num - 1).fill(l);
         this.lenG = new Array(this.num).fill(l / 2);
         this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
@@ -18,16 +18,16 @@ class Pendulum {
         for (let i = 0; i < this.num; i++) {
             this.I[i] = (1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
         }
-        this.decay = new Array(this.num).fill(0.1);
+        this.decay = new Array(this.num).fill(0);
 
-        let r = new Array(this.num).fill(Math.PI / 180 * 90);
+        let r = new Array(this.num).fill(Math.PI / 180 * 60);
         let v = new Array(this.num).fill(Math.PI / 180 * 0);
         this.vec = new Vector(r.concat(v));
 
         this.gx = 0;
         this.gy = 9.8;
 
-        this.px_m = 150;
+        this.px_m = 200;
         this.ox = screenW / 2;
         this.oy = screenH / 8;
 
@@ -215,7 +215,7 @@ class Pendulum {
                     dgx2 = dgx * len / this.lenG[i];
                     dgy2 = dgy * len / this.lenG[i];
                     
-                    ctx.lineWidth = 10;
+                    ctx.lineWidth = 5;
                     ctx.beginPath();
                     ctx.moveTo(x, y);
                     ctx.lineTo(x + dx, y + dy);
@@ -226,7 +226,7 @@ class Pendulum {
                     ctx.lineTo(x + dx, y + dy);
                     ctx.stroke();
                 } else {
-                    len = this.lenG[i] * l_lg_sum / this.num;
+                    len = this.lenG[i] * l_lg_sum / (this.num - 1);
                     dx = dgx * 2;
                     dy = dgy * 2;
                 }
@@ -241,12 +241,12 @@ class Pendulum {
                 ctx.restore();
 
                 ctx.beginPath();
-                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
                 ctx.fill();
 
                 if (i < this.num - 1) {
                     ctx.beginPath();
-                    ctx.arc(x + dgx2, y + dgy2, 8, 0, Math.PI * 2);
+                    ctx.arc(x + dgx2, y + dgy2, 4, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
