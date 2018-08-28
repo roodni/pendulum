@@ -1,5 +1,5 @@
-const W = 1024;
-const H = 768;
+const screenW = 640;
+const screenH = 480;
 
 const canvas = new Canvas();
 const mouse = new MouseInput();
@@ -15,19 +15,26 @@ function init() {
     images[2] = new Image();
     images[2].src = "src/UED_IKGM.jpg";
 
-    canvas.init(document.getElementById("screen"), W, H);
+    canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);
     pendulum.init(images);
 }
 
 function update() {
     mouse.update();
+
+    if (Math.abs(mouse.wheel) > 0) {
+        let r = Math.pow(1.01, mouse.wheel / 120)
+        pendulum.px_m *= r;
+        pendulum.ox = (pendulum.ox - mouse.x) * r + mouse.x;
+        pendulum.oy = (pendulum.oy - mouse.y) * r + mouse.y;
+    }
     pendulum.update();
 }
 
 function draw(ctx) {
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(0, 0, screenW, screenH);
 
     pendulum.draw(ctx);
 }
