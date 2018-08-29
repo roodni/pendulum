@@ -1,21 +1,61 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>多重剛体振り子</title>
-<link rel="stylesheet" href="./style.css" type="text/css">
-<script src="./input.js"></script>
-<script src="./canvas.js"></script>
-<script src="./vector.js"></script>
-<script src="./pendulum.js"></script>
-<script src="./main.js"></script>
+  <meta charset="UTF-8">
+  <title>多重剛体振り子</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./input.js"></script>
+  <script src="./canvas.js"></script>
+  <script src="./vector.js"></script>
+  <script src="./pendulum.js"></script>
+  <script src="./main.js"></script>
 </head>
 <body>
-<noscript><div>JavaScriptを有効にしよう(提案)</div></noscript>
-<canvas id="screen"></canvas>
-<p>
-これほんとに間に合うんですかね…<br>
-↑間に合いました
-</p>
+  <canvas id="screen"></canvas>
+  <form name="mainForm">
+    <div>
+      描画モード
+      <select name="drawMode">
+        <option value="normal">通常描画</option>
+        <option value="images">画像貼り付け</option>
+      </select>
+    </div>
+    <div>
+      プリセット
+      <select>
+        <option>単振り子</option>
+        <option>2重振り子</option>
+        <option>2重棒振り子</option>
+        <option selected>3重振り子</option>
+        <option>3重棒振り子</option>
+        <option>5重振り子</option>
+        <option>8重振り子</option>
+      </select>
+    </div>
+    <div>
+      <textarea rows="10" cols="30"></textarea><br>
+      <input type="button" value="読み込み">
+    </div>
+    <table>
+      <tr><th>キー</th><th>意味</th><th>型</th><th>省略時の値</th></tr>
+      <tr><td>number</td><td>おもりの数</td><td>数値</td><td>省略不可</td></tr>
+      <tr><td>mass</td><td>質量[kg]</td><td>配列[number]</td><td>[1.0]</td></tr>
+      <tr><td>momentOfInertia</td><td>重心まわりの慣性モーメント[kg･m^2]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>lengthOG</td><td>上回転軸と重心の距離[m]</td><td>配列[number]</td><td>省略不可</td></tr>
+      <tr><td>lengthOO</td><td>上下回転軸の距離[m]</td><td>配列[number - 1]</td><td>lengthOGの値</td></tr>
+      <tr><td>angleGOO</td><td>重心・上回転軸・下回転軸の角度[deg]</td><td>配列[number - 1]</td><td>[0]</td></tr>
+      <tr><td>decay</td><td>減衰定数[kg･m^2/s]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>angle</td><td>角度[deg]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>angularVelocity</td><td>角速度[deg/s]</td><td>配列[number]</td><td>[0]</td></tr>
+    </table>
+    <div>
+      入力された配列の要素数が少ない場合は配列の末尾の値で不足分が埋められます。<br>
+      入力された配列の要素数が多い場合は余剰分が無視されます。
+    </div>
+  </form>
+  <!--<p>
+    これほんとに間に合うんですかね…<br>
+    ↑間に合いました
+  </p>-->
 </body>
 </html>

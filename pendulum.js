@@ -1,12 +1,10 @@
 class Pendulum {
-    init(images) {
+    init() {
         //描画方法
         //0: 一般カラフル描画
         //1: 画像を貼る
         //2: 棒(未完成)
-        this.drawMode = 1;
-
-        this.images = images;
+        this.drawMode = "normal";
 
         this.num = 3;
         this.mass = new Array(this.num).fill(10);
@@ -144,7 +142,7 @@ class Pendulum {
         this.passedTime += 1 / 60;
     }
     
-    draw(ctx) {
+    draw(ctx, images) {
         let x = this.ox;
         let y = this.oy;
         let l_lg_sum = 0; //len[i] / lenG[i]の合計
@@ -158,7 +156,7 @@ class Pendulum {
                 l_lg_sum += this.len[i] / this.lenG[i];
             }
 
-            if (this.drawMode == 0) {
+            if (this.drawMode === "normal") {
                 //一般表示モード
                 let edgeW = 8;
 
@@ -202,7 +200,7 @@ class Pendulum {
                 ctx.arc(x + dgx, y + dgy, edgeW, 0, Math.PI * 2);
                 ctx.fill();
 
-            } else if (this.drawMode == 1) {
+            } else if (this.drawMode === "images") {
                 //写真表示モード
                 ctx.strokeStyle = "rgb(0, 0, 0)";
                 ctx.fillStyle = "rgb(0, 0, 0)";
@@ -250,7 +248,7 @@ class Pendulum {
                     ctx.fill();
                 }
 
-            } else if (this.drawMode == 2) {
+            } else if (this.drawMode === "stick") {
                 //棒表示モード
                 let edgeW = 10;
 

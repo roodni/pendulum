@@ -17,7 +17,12 @@ function init() {
 
     canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);
-    pendulum.init(images);
+    pendulum.init();
+
+    let form = document.forms.mainForm;
+    form.drawMode.addEventListener("change", () => {
+        pendulum.drawMode = form.drawMode.value;
+    });
 }
 
 function update() {
@@ -42,7 +47,7 @@ function draw(ctx) {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, screenW, screenH);
 
-    pendulum.draw(ctx);
+    pendulum.draw(ctx, images);
 }
 
 function main() {
