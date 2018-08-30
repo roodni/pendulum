@@ -1,3 +1,151 @@
+class PendulumData {
+    constructor(dataString) {
+        //確認するオブジェクト, 確認するキー,
+        //省略時の関数(省略可能ならtrue, 省略不可ならfalseを返す),
+        //各要素についての確認関数, 満たすべき条件文字列(return "{プロパティ名}の各要素は{ここに当てはまる文字列}である必要があります")
+        function arrayCheck(obj, key, shouryakuFunc, kakuninFunc, joukenName) {
+            if (key in obj) {
+                let ary = obj[key];
+                if (Array.isArray(ary) === false) {
+                    return key + "は配列である必要があります";
+                }
+                if (ary.length === 0) {
+                    return key + "が空です";
+                }
+                for (let i = 0; i < ary.length; i++) {
+                    if (kakuninFunc(ary[i]) === false) {
+                        return key + "の要素は" + joukenName + "である必要があります";
+                    }
+                }
+            } else {
+                if (shouryakuFunc(obj, key) === false) {
+                    return key + "は省略できません";
+                }
+            }
+            return "";
+        }
+
+        //エラーチェック
+        this.error = "";
+        let data;
+        try {
+            data = JSON.parse(dataString);
+        } catch(e) {
+            this.error = "JSONの文法エラーです";
+            return;
+        }
+
+        if (data instanceof Object === false) {
+            this.error = "入力されたデータはオブジェクトではありません";
+            return;
+        }
+
+        if ("number" in data) {
+            let num = data.number;
+            if ((isFinite(num) && Math.round(num) === num && num > 0) === false) {
+                this.error = "numberは正の整数である必要があります";
+                return;
+            }
+        } else {
+            this.error = "numberは省略できません";
+            return;
+        }
+
+        this.error = arrayCheck(data, "distOG", () => {
+            return false;
+        }, (elm) => {
+            return isFinite(elm) && elm > 0;
+        }, "正の数");
+        if (this.error !== "") {
+            return;
+        }
+
+        this.error = arrayCheck(data, "distOO", (obj, key) => {
+            obj[key] = obj.distOG.concat();
+            return true;
+        }, (elm) => {
+            return isFinite(elm) && elm > 0;
+        }, "正の数");
+        if (this.error !== "") {
+            return;
+        }
+
+        this.error = arrayCheck(data, "angleGOO", (obj, key) => {
+            obj[key] = [0];
+            return true;
+        }, (elm) => {
+            return isFinite(elm);
+        }, "数値");
+        if (this.error !== "") {
+            return;
+        }
+        
+        this.error = arrayCheck(data, "mass", (obj, key) => {
+            obj[key] = [1];
+            return true;
+        }, (elm) => {
+            return isFinite(elm) && elm > 0;
+        }, "正の数");
+        if (this.error !== "") {
+            return;
+        }
+
+        this.error = arrayCheck(data, "inertia", (obj, key) => {
+            obj[key] = [0];
+            return true;
+        }, (elm) => {
+            return isFinite(elm) && elm >= 0;
+        }, "負でない数");
+        if (this.error !== "") {
+            return;
+        }
+
+        this.error = arrayCheck(data, "decay", (obj, key) => {
+            obj[key] = [0];
+            return true;
+        }, (elm) => {
+            return isFinite(elm) && elm >= 0;
+        }, "負でない数");
+        if (this.error !== "") {
+            return;
+        }
+
+        this.error = arrayCheck(data, "angle", (obj, key) => {
+            obj[key] = [0];
+            return true;
+        }, (elm) => {
+            return isFinite(elm);
+        }, "数値");
+        if (this.error !== "") {
+            return;
+        }
+
+        this.error = arrayCheck(data, "angularVelocity", (obj, key) => {
+            obj[key] = [0];
+            return true;
+        }, (elm) => {
+            return isFinite(elm);
+        }, "数値");
+        if (this.error !== "") {
+            return;
+        }
+
+        //読み込む
+        //この処理もうちょっとうまいことかけないかな…
+        this.number = data.number;
+        this.distOG = data.distOG;
+        this.distOO = data.distOO;
+        this.angleGOO = data.angleGOO;
+        this.mass = data.mass;
+        this.inertia = data.inertia;
+        this.decay = data.decay;
+        this.angle = data.angle;
+        this.angularVelocity = data.angularVelocity;
+
+        return "";
+    }
+}
+
 class Pendulum {
     init() {
         //描画方法
@@ -5,31 +153,43 @@ class Pendulum {
         //1: 画像を貼る
         //2: 棒(未完成)
         this.drawMode = "normal";
-
-        this.num = 3;
-        this.mass = new Array(this.num).fill(10);
-        let l = 0.5;
-        this.len = new Array(this.num - 1).fill(l);
-        this.lenG = new Array(this.num).fill(l / 2);
-        this.rG = new Array(this.num - 1).fill(Math.PI / 180 * 0);
-        this.I = [];
-        for (let i = 0; i < this.num; i++) {
-            this.I[i] = (1 / 12) * this.mass[i] * Math.pow(this.lenG[i] * 2, 2);
-        }
-        this.decay = new Array(this.num).fill(0);
-
-        let r = new Array(this.num).fill(Math.PI / 180 * 60);
-        let v = new Array(this.num).fill(Math.PI / 180 * 0);
-        this.vec = new Vector(r.concat(v));
-
-        this.gx = 0;
-        this.gy = 9.8;
-
         this.px_m = 200;
         this.ox = screenW / 2;
         this.oy = screenH / 8;
 
+        this.gx = 0;
+        this.gy = 9.8;
+
         this.loop = 100;
+
+        let data = new PendulumData('{"number": 2, "distOG": [0.5], "angle": [90]}');
+        this.readData(data);
+    }
+    readData(pendulumData) {
+        this.num = pendulumData.number;
+        this.lenG = [];
+        this.len = [];
+        this.rG = [];
+        this.mass = [];
+        this.I = [];
+        this.decay = [];
+        let r = [];
+        let v = [];
+        for (let i = 0; i < this.num; i++) {
+            this.lenG[i] = pendulumData.distOG[Math.min(i, pendulumData.distOG.length - 1)];
+            if (i < this.num - 1) {
+                this.len[i] = pendulumData.distOO[Math.min(i, pendulumData.distOO.length - 1)];
+                this.rG[i] = pendulumData.angleGOO[Math.min(i, pendulumData.angleGOO.length - 1)];
+            }
+            this.mass[i] = pendulumData.mass[Math.min(i, pendulumData.mass.length - 1)];
+            this.I[i] = pendulumData.inertia[Math.min(i, pendulumData.inertia.length - 1)];
+            this.decay[i] = pendulumData.decay[Math.min(i, pendulumData.decay.length - 1)]
+            r[i] = pendulumData.angle[Math.min(i, pendulumData.angle.length - 1)] * Math.PI / 180;
+            v[i] = pendulumData.angularVelocity[Math.min(i, pendulumData.angularVelocity.length - 1)] * Math.PI / 180;
+        }
+
+        this.vec = new Vector(r.concat(v));
+
         this.passedTime = 0;
 
         //質量の累積和をとる

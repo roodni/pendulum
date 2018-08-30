@@ -9,20 +9,33 @@ let images = [];
 
 function init() {
     images[0] = new Image();
-    images[0].src = "src/bluebird_baka.png";//"src/uchiwa/UEDpink.jpg";
+    images[0].src = "src/bluebird_baka.png";
     images[1] = new Image();
-    images[1].src = "src/yaruki_moetsuki_man.png";//"src/uchiwa/MSM.jpg";
-    //images[2] = new Image();
-    //images[2].src = "src/uchiwa/kuso.jpg";
+    images[1].src = "src/yaruki_moetsuki_man.png";
 
     canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);
     pendulum.init();
 
     let form = document.forms.mainForm;
-    form.drawMode.addEventListener("change", () => {
+
+    function drawModeChange() {
         pendulum.drawMode = form.drawMode.value;
-    });
+    }
+    form.drawMode.addEventListener("change", drawModeChange);
+
+    function pendulumDataRead() {
+        let data = new PendulumData(form.pendulumData.value);
+        if (data.error === "") {
+            pendulum.readData(data);
+        } else {
+            console.log(data.error);
+        }
+    }
+    form.read.addEventListener("click", pendulumDataRead);
+
+    pendulumDataRead();
+    drawModeChange();
 }
 
 function update() {

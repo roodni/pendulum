@@ -33,25 +33,29 @@
       </select>
     </div>
     <div>
-      <textarea rows="10" cols="30"></textarea><br>
-      <input type="button" value="読み込み">
+      <textarea rows="10" cols="30" name="pendulumData">{
+"number": 2,
+"distOG": [0.5],
+"angle": [30]
+}</textarea><br>
+      <input type="button" value="読み込み" name="read">
     </div>
     <table>
       <tr><th>キー</th><th>意味</th><th>型</th><th>省略時の値</th></tr>
-      <tr><td>number</td><td>おもりの数</td><td>数値</td><td>省略不可</td></tr>
-      <tr><td>mass</td><td>質量[kg]</td><td>配列[number]</td><td>[1.0]</td></tr>
-      <tr><td>momentOfInertia</td><td>重心まわりの慣性モーメント[kg･m^2]</td><td>配列[number]</td><td>[0]</td></tr>
-      <tr><td>lengthOG</td><td>上回転軸と重心の距離[m]</td><td>配列[number]</td><td>省略不可</td></tr>
-      <tr><td>lengthOO</td><td>上下回転軸の距離[m]</td><td>配列[number - 1]</td><td>lengthOGの値</td></tr>
-      <tr><td>angleGOO</td><td>重心・上回転軸・下回転軸の角度[deg]</td><td>配列[number - 1]</td><td>[0]</td></tr>
-      <tr><td>decay</td><td>減衰定数[kg･m^2/s]</td><td>配列[number]</td><td>[0]</td></tr>
-      <tr><td>angle</td><td>角度[deg]</td><td>配列[number]</td><td>[0]</td></tr>
-      <tr><td>angularVelocity</td><td>角速度[deg/s]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>"number"</td><td>おもりの数</td><td>数値</td><td>省略不可</td></tr>
+      <tr><td>"distOG"</td><td>上回転軸と重心の距離[m]</td><td>配列[number]</td><td>省略不可</td></tr>
+      <tr><td>"distOO"</td><td>上下回転軸の距離[m]</td><td>配列[number - 1]</td><td>lengthOGの値</td></tr>
+      <tr><td>"angleGOO"</td><td>重心・上回転軸・下回転軸の角度[deg]</td><td>配列[number - 1]</td><td>[0]</td></tr>
+      <tr><td>"mass"</td><td>質量[kg]</td><td>配列[number]</td><td>[1]</td></tr>
+      <tr><td>"inertia"</td><td>重心まわりの慣性モーメント[kg･m^2]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>"decay"</td><td>減衰定数[kg･m^2/s]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>"angle"</td><td>角度[deg]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>"angularVelocity"</td><td>角速度[deg/s]</td><td>配列[number]</td><td>[0]</td></tr>
     </table>
-    <div>
-      入力された配列の要素数が少ない場合は配列の末尾の値で不足分が埋められます。<br>
-      入力された配列の要素数が多い場合は余剰分が無視されます。
-    </div>
+    <p>
+      配列の要素数が少ない場合は配列の末尾の値で不足分が埋められます。<br>
+      配列の要素数が多い場合は余剰分が無視されます。
+    </p>
   </form>
   <!--<p>
     これほんとに間に合うんですかね…<br>
