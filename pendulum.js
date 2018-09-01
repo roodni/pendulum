@@ -130,17 +130,43 @@ class PendulumData {
             return;
         }
 
+        this.error = arrayCheck(data, "shape", (obj, key) => {
+            obj[key] = [""];
+            return true;
+        }, (elm) => {
+            return true;
+        }, "");
+        if (this.error !== "") {
+            return;
+        }
+
         //読み込む
-        //この処理もうちょっとうまいことかけないかな…
+        //不足分を塗りつぶす処理も行う
         this.number = data.number;
-        this.distOG = data.distOG;
-        this.distOO = data.distOO;
-        this.angleGOO = data.angleGOO;
-        this.mass = data.mass;
-        this.inertia = data.inertia;
-        this.decay = data.decay;
-        this.angle = data.angle;
-        this.angularVelocity = data.angularVelocity;
+        this.distOG = [];
+        this.distOO = [];
+        this.angleGOO = [];
+        this.mass = [];
+        this.inertia = [];
+        this.decay = [];
+        this.angle = [];
+        this.angularVelocity = [];
+        for (let i = 0; i < data.number; i++) {
+            this.distOG[i] = data.distOG[Math.min(i, data.distOG.length - 1)];
+            this.distOO[i] = data.distOO[Math.min(i, data.distOO.length - 1)];
+            this.angleGOO[i] = data.angleGOO[Math.min(i, data.angleGOO.length - 1)] * Math.PI / 180;
+            this.mass[i] = data.mass[Math.min(i, data.mass.length - 1)];
+            this.inertia[i] = data.inertia[Math.min(i, data.inertia.length - 1)];
+            this.decay[i] = data.decay[Math.min(i, data.decay.length - 1)];
+            this.angle[i] = data.angle[Math.min(i, data.angle.length - 1)] * Math.PI / 180;
+            this.angularVelocity[i] = data.angularVelocity[Math.min(i, data.angularVelocity.length - 1)] * Math.PI / 180;
+            let shape = data.shape[Math.min(i, data.shape.length - 1)];
+            if (shape === "stick") {
+                this.distOO[i] = this.distOG[i] * 2;
+                this.angleGOO[i] = 0;
+                this.inertia[i] = this.mass[i] * Math.pow(this.distOG[i], 2) / 3;
+            }
+        }
 
         return "";
     }
@@ -167,29 +193,13 @@ class Pendulum {
     }
     readData(pendulumData) {
         this.num = pendulumData.number;
-        this.lenG = [];
-        this.len = [];
-        this.rG = [];
-        this.mass = [];
-        this.I = [];
-        this.decay = [];
-        let r = [];
-        let v = [];
-        for (let i = 0; i < this.num; i++) {
-            this.lenG[i] = pendulumData.distOG[Math.min(i, pendulumData.distOG.length - 1)];
-            if (i < this.num - 1) {
-                this.len[i] = pendulumData.distOO[Math.min(i, pendulumData.distOO.length - 1)];
-                this.rG[i] = pendulumData.angleGOO[Math.min(i, pendulumData.angleGOO.length - 1)];
-            }
-            this.mass[i] = pendulumData.mass[Math.min(i, pendulumData.mass.length - 1)];
-            this.I[i] = pendulumData.inertia[Math.min(i, pendulumData.inertia.length - 1)];
-            this.decay[i] = pendulumData.decay[Math.min(i, pendulumData.decay.length - 1)]
-            r[i] = pendulumData.angle[Math.min(i, pendulumData.angle.length - 1)] * Math.PI / 180;
-            v[i] = pendulumData.angularVelocity[Math.min(i, pendulumData.angularVelocity.length - 1)] * Math.PI / 180;
-        }
-
-        this.vec = new Vector(r.concat(v));
-
+        this.lenG = pendulumData.distOG.slice(0, this.num);
+        this.len = pendulumData.distOO.slice(0, this.num - 1);
+        this.rG = pendulumData.angleGOO.slice(0, this.num - 1);
+        this.mass = pendulumData.mass.slice(0, this.num);
+        this.I = pendulumData.inertia.slice(0, this.num);
+        this.decay = pendulumData.decay.slice(0, this.num);
+        this.vec = new Vector(pendulumData.angle.slice(0, this.num).concat(pendulumData.angle.slice(0, this.num)));
         this.passedTime = 0;
 
         //質量の累積和をとる
