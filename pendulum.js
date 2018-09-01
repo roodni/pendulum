@@ -199,7 +199,7 @@ class Pendulum {
         this.mass = pendulumData.mass.slice(0, this.num);
         this.I = pendulumData.inertia.slice(0, this.num);
         this.decay = pendulumData.decay.slice(0, this.num);
-        this.vec = new Vector(pendulumData.angle.slice(0, this.num).concat(pendulumData.angle.slice(0, this.num)));
+        this.vec = new Vector(pendulumData.angle.slice(0, this.num).concat(pendulumData.angularVelocity.slice(0, this.num)));
         this.passedTime = 0;
 
         //質量の累積和をとる
