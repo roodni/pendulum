@@ -5,13 +5,23 @@ const canvas = new Canvas();
 const mouse = new MouseInput();
 const pendulum = new Pendulum();
 
+const preset = {
+    'single': '{\n"number": 1,\n"distOG": [0.5],\n"angle": [90]\n}',
+    'double': '{\n"number": 2,\n"distOG": [0.6],\n"angle": [90]\n}',
+    'doubleS': '{\n"number": 2,\n"distOG": [0.3],\n"angle": [90],\n"shape": ["stick"]\n}',
+    'triple': '{\n"number": 3,\n"distOG": [0.6],\n"angle": [90]\n}',
+    'tripleS': '{\n"number": 3,\n"distOG": [0.3],\n"angle": [90],\n"shape": ["stick"]\n}',
+    'quintuple': '{\n"number": 5,\n"distOG": [0.3],\n"angle": [60]\n}',
+    'beast': '{\n"number": 8,\n"distOG": [0.2],\n"angle": [50]\n}'
+};
+
 let images = [];
 
 function init() {
     images[0] = new Image();
     images[0].src = "src/bluebird_baka.png";
-    images[1] = new Image();
-    images[1].src = "src/yaruki_moetsuki_man.png";
+    //images[1] = new Image();
+    //images[1].src = "src/yaruki_moetsuki_man.png";
 
     canvas.init(document.getElementById("screen"), screenW, screenH);
     mouse.init(canvas.canvas);
@@ -19,21 +29,28 @@ function init() {
 
     let form = document.forms.mainForm;
 
+    function presetSelect() {
+        form.pendulumData.value = preset[form.preset.value];
+    }
+    form.preset.addEventListener("change", presetSelect);
+
+    function pendulumDataRead() {
+        let data = new PendulumData(form.pendulumData.value);
+        if (data.error === "") {
+            document.getElementById("pendulumDataError").innerHTML = "";
+            pendulum.readData(data);
+        } else {
+            document.getElementById("pendulumDataError").innerHTML = data.error;
+        }
+    }
+    form.read.addEventListener("click", pendulumDataRead);
+
     function drawModeChange() {
         pendulum.drawMode = form.drawMode.value;
     }
     form.drawMode.addEventListener("change", drawModeChange);
 
-    function pendulumDataRead() {
-        let data = new PendulumData(form.pendulumData.value);
-        if (data.error === "") {
-            pendulum.readData(data);
-        } else {
-            console.log(data.error);
-        }
-    }
-    form.read.addEventListener("click", pendulumDataRead);
-
+    presetSelect();
     pendulumDataRead();
     drawModeChange();
 }

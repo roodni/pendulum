@@ -11,6 +11,9 @@
   <script src="./main.js"></script>
 </head>
 <body>
+  <p>
+    ホイールで拡大縮小、ドラッグでカメラ移動が可能です
+  </p>
   <canvas id="screen"></canvas>
   <form name="mainForm">
     <div>
@@ -22,39 +25,46 @@
     </div>
     <div>
       プリセット
-      <select>
-        <option>単振り子</option>
-        <option>2重振り子</option>
-        <option>2重棒振り子</option>
-        <option selected>3重振り子</option>
-        <option>3重棒振り子</option>
-        <option>5重振り子</option>
-        <option>8重振り子</option>
+      <select name="preset">
+        <option value="single">単振り子</option>
+        <option value="double" selected>2重振り子</option>
+        <option value="doubleS">2重棒振り子</option>
+        <option value="triple">3重振り子</option>
+        <option value="tripleS">3重棒振り子</option>
+        <option value="quintuple">5重振り子</option>
+        <option value="beast">8重振り子</option>
       </select>
     </div>
     <div>
-      <textarea rows="10" cols="30" name="pendulumData">{
-"number": 2,
-"distOG": [0.5],
-"angle": [30]
-}</textarea><br>
-      <input type="button" value="読み込み" name="read">
+      <textarea rows="10" cols="30" name="pendulumData"></textarea><br>
+      <input type="button" value="読み込み" name="read"><span id="pendulumDataError"></span>
     </div>
     <table>
       <tr><th>キー</th><th>意味</th><th>型</th><th>省略時の値</th></tr>
       <tr><td>"number"</td><td>おもりの数</td><td>数値</td><td>省略不可</td></tr>
       <tr><td>"distOG"</td><td>上回転軸と重心の距離[m]</td><td>配列[number]</td><td>省略不可</td></tr>
-      <tr><td>"distOO"</td><td>上下回転軸の距離[m]</td><td>配列[number - 1]</td><td>lengthOGの値</td></tr>
+      <tr><td>"distOO"</td><td>上下回転軸の距離[m]</td><td>配列[number - 1]</td><td>distOGの値</td></tr>
       <tr><td>"angleGOO"</td><td>重心・上回転軸・下回転軸の角度[deg]</td><td>配列[number - 1]</td><td>[0]</td></tr>
       <tr><td>"mass"</td><td>質量[kg]</td><td>配列[number]</td><td>[1]</td></tr>
       <tr><td>"inertia"</td><td>重心まわりの慣性モーメント[kg･m^2]</td><td>配列[number]</td><td>[0]</td></tr>
       <tr><td>"decay"</td><td>減衰定数[kg･m^2/s]</td><td>配列[number]</td><td>[0]</td></tr>
       <tr><td>"angle"</td><td>角度[deg]</td><td>配列[number]</td><td>[0]</td></tr>
       <tr><td>"angularVelocity"</td><td>角速度[deg/s]</td><td>配列[number]</td><td>[0]</td></tr>
+      <tr><td>"shape"</td><td>剛体設定の簡略化</td><td>配列[number]</td><td>[""]</td></tr>
     </table>
     <p>
       配列の要素数が少ない場合は配列の末尾の値で不足分が埋められます。<br>
       配列の要素数が多い場合は余剰分が無視されます。
+    </p>
+    <p>
+      shapeの要素に"stick"を指定するとその剛体は棒として扱われます。<br>
+      具体的には、インデックスをiとすると<br>
+      <code>
+      distOO[i] = distOG[i] * 2<br>
+      angleGOO[i] = 0<br>
+      inertia[i] = mass[i] * distOG[i] * distOG[i] / 3
+      </code><br>
+      と書き換えられます。
     </p>
   </form>
   <!--<p>
