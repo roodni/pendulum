@@ -1,15 +1,14 @@
 @charset "UTF-8";
 
 #screen {
-	border-style: dotted;
-	border-color: #000000;
-	border-width: 1px;	
+	border: 1px dotted black;
 }
 
-/*#screen:hover {
-	cursor: none;
-}*/
+table {
+	border: 1px dotted black;
+	border-collapse: collapse;
+}
 
-/*body {
-	background-color: #e0e0e0;
-}*/
+th, td {
+	border: 1px dotted black;
+}
