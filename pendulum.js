@@ -394,7 +394,7 @@ class Pendulum {
                     ctx.lineTo(x + dx, y + dy);
                     ctx.stroke();
                 } else {
-                    len = this.lenG[i] * l_lg_sum / (this.num - 1);
+                    len = this.lenG[i] * (this.num > 1 ? l_lg_sum / (this.num - 1) : 1);
                     dx = dgx * 2;
                     dy = dgy * 2;
                 }
