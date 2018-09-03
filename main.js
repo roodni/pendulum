@@ -6,7 +6,7 @@ const mouse = new MouseInput();
 const pendulum = new Pendulum();
 
 const preset = {
-    'single': '{\n"number": 1,\n"distOG": [0.5],\n"angle": [90]\n}',
+    'single': '{\n"number": 1,\n"distOG": [0.6],\n"angle": [90]\n}',
     'double': '{\n"number": 2,\n"distOG": [0.6],\n"angle": [90]\n}',
     'doubleS': '{\n"number": 2,\n"distOG": [0.3],\n"angle": [90],\n"shape": ["stick"]\n}',
     'triple': '{\n"number": 3,\n"distOG": [0.6],\n"angle": [90]\n}',
@@ -18,14 +18,15 @@ const preset = {
 let images = [];
 
 function init() {
+    canvas.init(document.getElementById("screen"), screenW, screenH);
+    mouse.init(canvas.canvas);
+    pendulum.init();
+
     images[0] = new Image();
     images[0].src = "src/bluebird_baka.png";
     //images[1] = new Image();
     //images[1].src = "src/yaruki_moetsuki_man.png";
-
-    canvas.init(document.getElementById("screen"), screenW, screenH);
-    mouse.init(canvas.canvas);
-    pendulum.init();
+    pendulum.images = images;
 
     let form = document.forms.mainForm;
 
@@ -47,12 +48,22 @@ function init() {
 
     function drawModeChange() {
         pendulum.drawMode = form.drawMode.value;
+        form.pendulumText.style.display = (pendulum.drawMode === "text") ? "inline" : "none";
     }
     form.drawMode.addEventListener("change", drawModeChange);
+
+    function pendulumTextChange() {
+        let text = form.pendulumText.value;
+        if (text !== "") {
+            pendulum.text = text;
+        }
+    }
+    form.pendulumText.addEventListener("change", pendulumTextChange);
 
     presetSelect();
     pendulumDataRead();
     drawModeChange();
+    pendulumTextChange();
 }
 
 function update() {
@@ -77,7 +88,7 @@ function draw(ctx) {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, screenW, screenH);
 
-    pendulum.draw(ctx, images);
+    pendulum.draw(ctx);
 }
 
 function main() {

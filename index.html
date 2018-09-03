@@ -21,7 +21,10 @@
       <select name="drawMode">
         <option value="normal">通常描画</option>
         <option value="images">画像貼り付け</option>
+        <option value="text">文字貼り付け</option>
       </select>
+      <input type="text" name="pendulumText" value="多重振り子">
+      <!-- submit防止用のダミー --><input type="text" style="display: none;">
     </div>
     <div>
       プリセット
@@ -37,7 +40,7 @@
     </div>
     <div>
       <textarea rows="10" cols="30" name="pendulumData"></textarea><br>
-      <input type="button" value="読み込み" name="read"><span id="pendulumDataError"></span>
+      <input type="button" value="読み込み" name="read"><br><span id="pendulumDataError"></span>
     </div>
     <table>
       <tr><th>キー</th><th>意味</th><th>型</th><th>省略時の値</th></tr>

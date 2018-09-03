@@ -175,9 +175,10 @@ class PendulumData {
 class Pendulum {
     init() {
         //描画方法
-        //0: 一般カラフル描画
-        //1: 画像を貼る
-        //2: 棒(未完成)
+        //normal: 一般カラフル描画
+        //images: 画像を貼る
+        //stick: 棒(未完成)
+        //text: 文字を貼る
         this.drawMode = "normal";
         this.px_m = 200;
         this.ox = screenW / 2;
@@ -186,6 +187,7 @@ class Pendulum {
         this.gx = 0;
         this.gy = 9.8;
 
+        this.speed = 1; //何倍速か
         this.loop = 100;
 
         let data = new PendulumData('{"number": 2, "distOG": [0.5], "angle": [90]}');
@@ -292,7 +294,7 @@ class Pendulum {
         return new Vector(vec.elm.slice(this.num, this.num * 2).concat(SLEsolve(matrix)));
     }
     update() {
-        let dt = 1 / (60 * this.loop);
+        let dt = this.speed / (60 * this.loop);
         for (let i = 0; i < this.loop; i++) {
             //オイラー法
             //this.vec = this.vec.add(this.bibun(this.vec).mult(dt));
@@ -308,14 +310,17 @@ class Pendulum {
             let tmp3 = this.bibun(this.vec.add(tmp2.mult(dt / 2)));
             let tmp4 = this.bibun(this.vec.add(tmp3.mult(dt)));
             this.vec = this.vec.add((tmp1.add(tmp2.mult(2)).add(tmp3.mult(2)).add(tmp4)).mult(dt / 6));
+
+            this.passedTime += dt;
         }
-        this.passedTime += 1 / 60;
     }
     
-    draw(ctx, images) {
+    draw(ctx) {
         let x = this.ox;
         let y = this.oy;
+        let l_lg;
         let l_lg_sum = 0; //len[i] / lenG[i]の合計
+
         for (let i = 0; i < this.num; i++) {
             let dx, dy, dgx, dgy;
             dgx = this.lenG[i] * Math.sin(this.vec.elm[i]) * this.px_m;
@@ -323,7 +328,10 @@ class Pendulum {
             if (i < this.num - 1) {
                 dx = this.len[i] * Math.sin(this.vec.elm[i] + this.rG[i]) * this.px_m;
                 dy = this.len[i] * Math.cos(this.vec.elm[i] + this.rG[i]) * this.px_m;
-                l_lg_sum += this.len[i] / this.lenG[i];
+                l_lg = this.len[i] / this.lenG[i]
+                l_lg_sum += l_lg;
+            } else {
+                l_lg = this.num > 1 ? l_lg_sum / (this.num - 1) : 1;
             }
 
             if (this.drawMode === "normal") {
@@ -394,7 +402,7 @@ class Pendulum {
                     ctx.lineTo(x + dx, y + dy);
                     ctx.stroke();
                 } else {
-                    len = this.lenG[i] * (this.num > 1 ? l_lg_sum / (this.num - 1) : 1);
+                    len = this.lenG[i] * l_lg;
                     dx = dgx * 2;
                     dy = dgy * 2;
                 }
@@ -402,7 +410,7 @@ class Pendulum {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(-this.vec.elm[i]);
-                let img = images[i % images.length];
+                let img = this.images[i % images.length];
                 let scale = len * this.px_m / img.height;
                 ctx.scale(scale, scale);
                 ctx.drawImage(img, -img.width / 2, 0);
@@ -417,6 +425,32 @@ class Pendulum {
                     ctx.arc(x + dgx2, y + dgy2, 4, 0, Math.PI * 2);
                     ctx.fill();
                 }
+            } else if (this.drawMode === "text") {
+                // 文字表示モード
+                ctx.strokeStyle = "rgb(0, 0, 0)";
+                ctx.fillStyle = "rgb(0, 0, 0)";
+
+                let len;
+
+                if (i < this.num - 1) {
+                    len = this.len[i];
+                } else {
+                    len = this.lenG[i] * l_lg;
+                }
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(-this.vec.elm[i]);
+                ctx.font = (len * this.px_m) + "px serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+                ctx.fillText(this.text[i % this.text.length], 0, 0);
+                ctx.restore();
+
+                ctx.globalAlpha = 0.3
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
 
             } else if (this.drawMode === "stick") {
                 //棒表示モード
