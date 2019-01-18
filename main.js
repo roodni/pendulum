@@ -38,10 +38,10 @@ function init() {
     function pendulumDataRead() {
         let data = new PendulumData(form.pendulumData.value);
         if (data.error === "") {
-            document.getElementById("pendulumDataError").innerHTML = "";
+            document.getElementById("pendulumDataError").innerText = "";
             pendulum.readData(data);
         } else {
-            document.getElementById("pendulumDataError").innerHTML = data.error;
+            document.getElementById("pendulumDataError").innerText = data.error;
         }
     }
     form.read.addEventListener("click", pendulumDataRead);
