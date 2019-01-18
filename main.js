@@ -60,10 +60,33 @@ function init() {
     }
     form.pendulumText.addEventListener("change", pendulumTextChange);
 
-    presetSelect();
+    function getURLParams() {
+        let query = location.search.substring(1);
+        let params = query.split("&");
+        let result = {};
+        params.forEach((param) => {
+            let elements = param.split("=");
+            let name = decodeURIComponent(elements[0]);
+            let value = decodeURIComponent(elements.slice(1).join("="));
+            result[name] = value;
+        });
+        return result;
+    }
+    let params = getURLParams();
+
+    if (params.hasOwnProperty("data")) {
+        form.pendulumData.value = params["data"];
+    } else {
+        presetSelect();
+    }
     pendulumDataRead();
-    drawModeChange();
+
+    if (params.hasOwnProperty("text")) {
+        form.pendulumText.value = params["text"];
+        form.drawMode.value = "text";
+    }
     pendulumTextChange();
+    drawModeChange();
 }
 
 function update() {
